@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+::selection,
+::-moz-selection {
+  @apply text-opposite-main;
+  @apply bg-complementary;
+}
