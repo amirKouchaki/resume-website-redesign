@@ -7,8 +7,11 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
-  experimental: { inlineSSRStyles: false },
-  modules: ["@nuxtjs/tailwindcss"],
+  sourcemap: {
+    server: true,
+    client: true,
+  },
+  modules: ["@nuxtjs/tailwindcss", "nuxt-svgo"],
   css: ["~/assets/css/main.css"],
   build: {
     transpile: ["gsap"],

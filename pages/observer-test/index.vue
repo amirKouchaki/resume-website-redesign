@@ -6,26 +6,16 @@
       >
         <ul class="flex flex-col gap-5">
           <li v-for="(i, index) in 3" :key="i">
-            <!-- <img
-              :src="
-                index <= currentPageIndex
-                  ? navigatorSvgs.filled
-                  : navigatorSvgs.empty
-              "
-              alt=""
-            /> -->
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="navigator-helper-img"
-            >
-              <!-- Your SVG content -->
-              <use xlink:href="/public/svgs/empty-diamond.svg" />
-            </svg>
+            <EmptyDiamond
+              class="navigator-helper-svg text-transparent"
+              :id="index"
+            />
           </li>
         </ul>
       </section>
     </Teleport>
-    <section class="page-section w-full h-full fixed top-0">
+
+    <section class="page-section w-full h-full fixed top-0" id="page-1">
       <div class="outer w-full h-full overflow-y-hidden">
         <div
           class="inner w-full h-full grid place-items-center overflow-y-hidden bg-main"
@@ -36,7 +26,10 @@
         </div>
       </div>
     </section>
-    <section class="page-section w-full h-full fixed top-0 invisible">
+    <section
+      class="page-section w-full h-full fixed top-0 invisible"
+      id="page-2"
+    >
       <div class="outer w-full h-full overflow-y-hidden">
         <div
           class="inner w-full h-full grid place-items-center overflow-y-hidden bg-complementary"
@@ -47,7 +40,10 @@
         </div>
       </div>
     </section>
-    <section class="page-section w-full h-full fixed top-0 invisible">
+    <section
+      class="page-section w-full h-full fixed top-0 invisible"
+      id="page-3"
+    >
       <div class="outer w-full h-full overflow-y-hidden">
         <div
           class="inner w-full h-full grid place-items-center overflow-y-hidden bg-secondary"
@@ -62,7 +58,12 @@
 </template>
 
 <script setup lang="ts">
+import resolveConfig from "tailwindcss/resolveConfig";
+import tailwindConfig from "~/tailwind.config.js";
+import EmptyDiamond from "~/assets/svgs/empty-diamond.svg";
 const { $gsap: gsap, $Observer: Observer } = useNuxtApp();
+
+const { theme } = resolveConfig(tailwindConfig) as { theme: any };
 
 const ctx: Ref<gsap.Context | undefined> = ref();
 const currentPageIndex = ref(0);
@@ -72,11 +73,7 @@ const innerWrappers = ref([]);
 const navigatorHelperImages = ref([]);
 const wrap = ref();
 const isAnimating: Ref<boolean> = ref(false);
-
-const navigatorSvgs = {
-  filled: "/svgs/filled-diamond.svg",
-  empty: "/svgs/empty-diamond.svg",
-};
+const pageTransitionDuration = 1.25;
 
 // const pages = ref([
 //   { id: "page-1", classes: "bg-main" },
@@ -104,7 +101,7 @@ const goFromSection = (curr: number, direction: Direction) => {
   const nextPageTL = gsap.timeline({
     defaults: {
       paused: false,
-      duration: 1.25,
+      duration: pageTransitionDuration,
       ease: "power1.inOut",
     },
     onComplete: () => {
@@ -130,12 +127,27 @@ const goFromSection = (curr: number, direction: Direction) => {
     0
   );
 
-  nextPageTL.to(navigatorHelperImages.value[nextIndex], {
-    fill: "white",
-  });
+  animateNavigationHelper(
+    navigatorHelperImages.value.filter((_, index) => index > nextIndex),
+    "transparent"
+  );
+  animateNavigationHelper(
+    navigatorHelperImages.value.filter((_, index) => index <= nextIndex)
+  );
 
   nextPageTL.set(pageSectionsRefs.value[curr], {
     autoAlpha: 0,
+  });
+};
+
+const animateNavigationHelper = (
+  targets: never[] | never,
+  color = theme.colors.white
+) => {
+  console.log(targets);
+  gsap.to(targets, {
+    color: color,
+    duration: pageTransitionDuration,
   });
 };
 
@@ -143,9 +155,9 @@ onMounted(() => {
   pageSectionsRefs.value = gsap.utils.toArray(".page-section");
   outerWrappers.value = gsap.utils.toArray(".outer");
   innerWrappers.value = gsap.utils.toArray(".inner");
-  navigatorHelperImages.value = gsap.utils.toArray(".navigator-helper-img");
+  navigatorHelperImages.value = gsap.utils.toArray(".navigator-helper-svg");
   wrap.value = gsap.utils.wrap(0, pageSectionsRefs.value.length);
-
+  animateNavigationHelper(navigatorHelperImages.value[currentPageIndex.value]);
   ctx.value = gsap.context((context) => {
     Observer.create({
       target: ".main-div",
@@ -172,4 +184,8 @@ onUnmounted(() => {
 <style scoped>
 .transform {
 }
+
+/* .navigator-helper-svg >>> .nuxt-icon--fill {
+  fill: currentColor;
+} */
 </style>
