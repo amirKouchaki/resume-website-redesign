@@ -13,6 +13,15 @@
 <script setup lang="ts">
 import type { NavigationIndicator, SectionPage } from "#build/components";
 import { PageSectionClasses } from "../../enums";
+import type NavigationIndicatorVue from "../NavigationIndicator.vue";
+
+const props = defineProps({
+  routeName: {
+    required: true,
+    type: String,
+  },
+});
+
 const { $gsap: gsap, $Observer: Observer } = useNuxtApp();
 const slots = useSlots();
 const route = useRoute();
@@ -30,11 +39,12 @@ const isAnimating = ref(false);
 const ctx: Ref<gsap.Context | undefined> = ref();
 const wrap = ref();
 const currentPageIndex = ref(
-  pageIds.value.findIndex((pageId) => {
-    return (
-      pageId === (route.query.page ?? defaultSlot.value[0].props["page-id"])
-    );
-  })
+  Math.max(
+    pageIds.value.findIndex((pageId) => {
+      return pageId === route.query.page;
+    }),
+    0
+  )
 );
 const pageTransitionDuration = 1.25;
 const pageSections = ref();
@@ -54,7 +64,7 @@ const goFromSection = (curr: number, direction: Direction) => {
   // determine the next section to go to
   const nextIndex = wrap.value(curr + direction);
   navigateTo({
-    name: "observer",
+    name: props.routeName,
     query: { page: defaultSlot.value[nextIndex].props["page-id"] },
   });
 
@@ -67,7 +77,8 @@ const goFromSection = (curr: number, direction: Direction) => {
     pageSections.value,
     innerWrappers.value,
     outerWrappers.value,
-    isAnimating
+    isAnimating,
+    navigationIndicatorRef.value
   );
 };
 
@@ -94,7 +105,8 @@ onMounted(() => {
         pages: any[],
         pagesInners: any[],
         pagesOuters: any[],
-        isAnimatingRef: Ref<boolean>
+        isAnimatingRef: Ref<boolean>,
+        NavigationIndicator: InstanceType<typeof NavigationIndicatorVue>
       ) => {
         const nextPageTL = gsap.timeline({
           defaults: {
@@ -127,7 +139,7 @@ onMounted(() => {
           0
         );
 
-        navigationIndicatorRef.value?.animateNavigationIndicator(to, duration);
+        NavigationIndicator?.animateNavigationIndicator(to, duration);
 
         nextPageTL.set(pages[from], {
           autoAlpha: 0,
