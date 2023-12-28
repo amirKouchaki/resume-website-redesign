@@ -1,7 +1,10 @@
 <template>
   <section
     class="w-full h-full fixed top-0"
-    :class="[{ invisible: !visible }, PageSectionClasses.mainClass]"
+    :class="[
+      { invisible: defaultPageId !== pageId },
+      PageSectionClasses.mainClass,
+    ]"
     :id="pageId"
   >
     <div
@@ -19,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { PageSectionClasses } from "../enums";
+import { PageSectionClasses } from "../../enums";
 defineProps({
   innerClass: {
     default: "",
@@ -31,17 +34,13 @@ defineProps({
     type: String,
     required: false,
   },
-  visible: {
-    default: false,
-    type: Boolean,
-    required: false,
-  },
   pageId: {
     required: true,
     type: String,
   },
 });
+
+const defaultPageId = inject("defaultPageId");
 </script>
 
 <style scoped></style>
-../enums

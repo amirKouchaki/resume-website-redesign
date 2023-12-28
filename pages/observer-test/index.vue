@@ -181,11 +181,4 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-.transform {
-}
-
-/* .navigator-helper-svg >>> .nuxt-icon--fill {
-  fill: currentColor;
-} */
-</style>
+<style scoped></style>

@@ -4,7 +4,7 @@
       v-for="(i, index) in 3"
       :id="`page${i}`"
       class="w-20 h-20 bg-blue-500"
-      :class="{ 'opacity-50': $route.query.page !== `page${i}` }"
+      :class="{ 'opacity-50': currentPageIndex !== `page${i}` }"
       @click.prevent="navigateTo({ name: 'test', query: { page: `page${i}` } })"
     ></section>
   </div>
@@ -12,8 +12,7 @@
 
 <script setup lang="ts">
 const route = useRoute();
-const currentPageIndex = ref();
-const currentPageHash = computed(() => {});
+const currentPageIndex = ref(route.query.page ?? "page1");
 
 // console.log(currentPageIndex.value);
 
@@ -22,16 +21,12 @@ const getClass = (pageIndex: string) => {
   if (currentPageIndex.value !== pageIndex) return "opacity-50";
 };
 
-onMounted(() => {
-  currentPageIndex.value = route.hash.substring(1);
-});
+onMounted(() => {});
 
 watch(
-  () => route.hash,
+  () => route.query.page as string,
   (newVal) => {
-    const hash = newVal.substring(1);
-
-    currentPageIndex.value = hash;
+    currentPageIndex.value = newVal;
   }
 );
 </script>
