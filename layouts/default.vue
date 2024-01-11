@@ -1,29 +1,14 @@
 <template>
-  <main>
-    <header
-      class="fixed-heading top-0 fixed px-10 py-6 flex justify-between items-center w-full"
-    >
-      <h2 class="email text-opposite-main text-[1.1rem] invisible">
-        amirkouchaki1@gmail.com
-      </h2>
-    </header>
-    <slot></slot>
-  </main>
+  <SidebarDesktop v-if="useDevice().isDesktop" />
+  <header class="flex items-center justify-between px-5 py-5">
+    <h1 class="text-opposite-main text-3xl font-bold">Amir Kouchaki</h1>
+    <SidebarMobile v-if="!useDevice().isDesktop" />
+  </header>
+  <slot></slot>
 </template>
 
 <script setup lang="ts">
-const { $gsap: gsap } = useNuxtApp();
-const fadeLayout = useState("fadeLayout");
-
-watch(fadeLayout, (newVal) => {
-  if (newVal) {
-    gsap.to(".email", {
-      autoAlpha: 1,
-      duration: 1,
-    });
-    useState("fadeLayout", () => false);
-  }
-});
+provide("currRoute", "index");
 </script>
 
 <style scoped></style>

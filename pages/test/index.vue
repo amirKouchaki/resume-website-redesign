@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: "default",
+  layout: "test",
 });
 
 const { $gsap: gsap, $Flip: Flip } = useNuxtApp();

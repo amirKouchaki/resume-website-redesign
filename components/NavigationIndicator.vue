@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed top-0 bottom-0 left-0 flex justify-center items-center py-10 px-5 z-10"
+    class="fixed top-0 bottom-0 left-0 flex justify-center items-center py-10 px-5 z-[4]"
   >
     <ul class="flex flex-col gap-5">
       <li v-for="(i, index) in pageCount" :key="i">

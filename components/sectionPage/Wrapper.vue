@@ -1,7 +1,8 @@
 <template>
-  <div ref="mainWrapperRef" class="h-[100vh]">
+  <div ref="mainWrapperRef" class="h-[100vh] fixed -z-[1]">
     <Teleport to="body">
       <NavigationIndicator
+        v-if="isDesktopOrTablet"
         :page-count="pageCount"
         ref="navigationIndicatorRef"
       />
@@ -11,9 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import type { NavigationIndicator, SectionPage } from "#build/components";
+import type { NavigationIndicator } from "#build/components";
 import { PageSectionClasses } from "../../enums";
 import type NavigationIndicatorVue from "../NavigationIndicator.vue";
+
+const { isDesktopOrTablet } = useDevice();
 
 const props = defineProps({
   routeName: {
@@ -25,13 +28,13 @@ const props = defineProps({
 const { $gsap: gsap, $Observer: Observer } = useNuxtApp();
 const slots = useSlots();
 const route = useRoute();
+const { sourceType } = useMouse();
 
 const pageIds: ComputedRef<string[]> = computed(() => {
   return defaultSlot.value.map((slot) => {
     return slot.props["page-id"];
   });
 });
-
 const defaultSlot = ref(slots.default ? (slots.default() as any[]) : []);
 const pageCount = defaultSlot.value?.length;
 const mainWrapperRef = ref();
@@ -46,6 +49,8 @@ const currentPageIndex = ref(
     0
   )
 );
+
+const queryChangedByObserver = ref(false);
 const pageTransitionDuration = 1.25;
 const pageSections = ref();
 const outerWrappers = ref();
@@ -60,13 +65,16 @@ enum Direction {
   Next = 1,
 }
 
-const goFromSection = (curr: number, direction: Direction) => {
+const goFromSection = (curr: number, direction: Direction, next?: number) => {
   // determine the next section to go to
-  const nextIndex = wrap.value(curr + direction);
+  next = next ?? 1;
+  const nextIndex = wrap.value(curr + direction * next);
   navigateTo({
     name: props.routeName,
     query: { page: defaultSlot.value[nextIndex].props["page-id"] },
   });
+
+  queryChangedByObserver.value = true;
 
   ctx.value?.scrollToPage(
     curr,
@@ -151,12 +159,20 @@ onMounted(() => {
       type: "wheel,touch",
       tolerance: 30,
       onUp: () => {
-        if (!isAnimating.value)
-          goFromSection(currentPageIndex.value, Direction.Previous);
+        if (!isAnimating.value) {
+          if (sourceType.value == "mouse")
+            goFromSection(currentPageIndex.value, Direction.Previous);
+          else if (sourceType.value == "touch")
+            goFromSection(currentPageIndex.value, Direction.Next);
+        }
       },
       onDown: () => {
-        if (!isAnimating.value)
-          goFromSection(currentPageIndex.value, Direction.Next);
+        if (!isAnimating.value) {
+          if (sourceType.value == "mouse")
+            goFromSection(currentPageIndex.value, Direction.Next);
+          else if (sourceType.value == "touch")
+            goFromSection(currentPageIndex.value, Direction.Previous);
+        }
       },
       preventDefault: true,
     });
@@ -166,6 +182,30 @@ onMounted(() => {
 onUnmounted(() => {
   ctx.value?.revert();
 });
+watch(
+  () => route.query,
+  (newVal, oldVal) => {
+    if (queryChangedByObserver.value) queryChangedByObserver.value = false;
+    else {
+      const next = pageIds.value.findIndex((pageId) => pageId === newVal.page);
+      const curr = pageIds.value.findIndex((pageId) => pageId === oldVal.page);
+      console.log(next);
+      console.log(curr);
+      ctx.value?.scrollToPage(
+        curr,
+        next,
+        pageTransitionDuration,
+        Direction.Next,
+        currentPageIndex,
+        pageSections.value,
+        innerWrappers.value,
+        outerWrappers.value,
+        isAnimating,
+        navigationIndicatorRef.value
+      );
+    }
+  }
+);
 </script>
 
 <style scoped></style>

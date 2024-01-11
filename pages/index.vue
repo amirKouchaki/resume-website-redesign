@@ -1,33 +1,46 @@
 <template>
   <SectionPageWrapper route-name="index">
-    <SectionPage page-id="page-1" inner-class="bg-main grid place-items-center">
-      <h1 class="text-9xl font-bold whitespace-nowrap text-white">Page 1</h1>
+    <SectionPage
+      :page-id="pages[0].id"
+      inner-class="bg-main grid place-items-center"
+    >
+      <h1 class="lg:text-9xl text-7xl font-bold text-center text-white">
+        {{ pages[0].title }}
+      </h1>
     </SectionPage>
     <SectionPage
-      page-id="page-2"
+      :page-id="pages[1].id"
       inner-class="bg-complementary grid place-items-center"
     >
-      <h1 class="text-9xl font-bold whitespace-nowrap text-white">Page 2</h1>
+      <h1 class="lg:text-9xl text-7xl font-bold text-center text-white">
+        {{ pages[1].title }}
+      </h1>
     </SectionPage>
     <SectionPage
-      page-id="page-3"
-      inner-class="bg-secondary grid place-items-center"
-    >
-      <h1 class="text-9xl font-bold whitespace-nowrap text-white">Page 3</h1>
-    </SectionPage>
-    <SectionPage
-      page-id="page-4"
+      :page-id="pages[2].id"
       inner-class="bg-slate-800 grid place-items-center"
     >
-      <h1 class="text-9xl font-bold whitespace-nowrap text-blue-500">Page 4</h1>
+      <h1 class="lg:text-9xl text-7xl font-bold text-center text-blue-500">
+        {{ pages[2].title }}
+      </h1>
+    </SectionPage>
+    <SectionPage
+      :page-id="pages[3].id"
+      inner-class="bg-emerald-800 grid place-items-center"
+    >
+      <h1 class="lg:text-9xl text-7xl font-bold text-center text-white">
+        {{ pages[3].title }}
+      </h1>
     </SectionPage>
   </SectionPageWrapper>
 </template>
 
 <script setup lang="ts">
 definePageMeta({
-  layout: false,
+  layout: "default",
 });
+
+const pages = usePages();
 </script>
 
 <style scoped></style>

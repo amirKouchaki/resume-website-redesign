@@ -11,7 +11,13 @@ export default defineNuxtConfig({
     server: true,
     client: true,
   },
-  modules: ["@nuxtjs/tailwindcss", "nuxt-svgo"],
+  modules: [
+    "@nuxtjs/tailwindcss",
+    "nuxt-svgo",
+    "@vueuse/nuxt",
+    "nuxt-icon",
+    "@nuxtjs/device",
+  ],
   css: ["~/assets/css/main.css"],
   build: {
     transpile: ["gsap"],
