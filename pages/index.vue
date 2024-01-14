@@ -10,7 +10,7 @@
     </SectionPage>
     <SectionPage
       :page-id="pages[1].id"
-      inner-class="bg-complementary grid place-items-center"
+      inner-class="bg-secondary grid place-items-center"
     >
       <h1 class="lg:text-9xl text-7xl font-bold text-center text-white">
         {{ pages[1].title }}

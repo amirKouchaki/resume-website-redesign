@@ -50,11 +50,12 @@ const currentPageIndex = ref(
   )
 );
 
-const queryChangedByObserver = ref(false);
 const pageTransitionDuration = 1.25;
 const pageSections = ref();
 const outerWrappers = ref();
 const innerWrappers = ref();
+const currDirection: Ref<null | Direction> = ref(null);
+const observer: Ref<Observer | undefined> = ref();
 const navigationIndicatorRef:
   | Ref<InstanceType<typeof NavigationIndicator>>
   | Ref<undefined> = ref();
@@ -74,20 +75,22 @@ const goFromSection = (curr: number, direction: Direction, next?: number) => {
     query: { page: defaultSlot.value[nextIndex].props["page-id"] },
   });
 
-  queryChangedByObserver.value = true;
+  currDirection.value = direction;
 
-  ctx.value?.scrollToPage(
-    curr,
-    nextIndex,
-    pageTransitionDuration,
-    direction,
-    currentPageIndex,
-    pageSections.value,
-    innerWrappers.value,
-    outerWrappers.value,
-    isAnimating,
-    navigationIndicatorRef.value
-  );
+  // queryChangedByObserver.value = true;
+
+  // ctx.value?.scrollToPage(
+  //   curr,
+  //   nextIndex,
+  //   pageTransitionDuration,
+  //   direction,
+  //   currentPageIndex,
+  //   pageSections.value,
+  //   innerWrappers.value,
+  //   outerWrappers.value,
+  //   isAnimating,
+  //   navigationIndicatorRef.value
+  // );
 };
 
 onMounted(() => {
@@ -155,7 +158,7 @@ onMounted(() => {
       }
     );
 
-    Observer.create({
+    observer.value = Observer.create({
       type: "wheel,touch",
       tolerance: 30,
       onUp: () => {
@@ -185,27 +188,29 @@ onUnmounted(() => {
 watch(
   () => route.query,
   (newVal, oldVal) => {
-    if (queryChangedByObserver.value) queryChangedByObserver.value = false;
-    else {
-      const next = pageIds.value.findIndex((pageId) => pageId === newVal.page);
-      const curr = pageIds.value.findIndex((pageId) => pageId === oldVal.page);
-      console.log(next);
-      console.log(curr);
-      ctx.value?.scrollToPage(
-        curr,
-        next,
-        pageTransitionDuration,
-        Direction.Next,
-        currentPageIndex,
-        pageSections.value,
-        innerWrappers.value,
-        outerWrappers.value,
-        isAnimating,
-        navigationIndicatorRef.value
-      );
-    }
+    const next = pageIds.value.findIndex((pageId) => pageId === newVal.page);
+    const curr = pageIds.value.findIndex((pageId) => pageId === oldVal.page);
+    const direction = currDirection.value ?? Direction.Next;
+    currDirection.value = null;
+    ctx.value?.scrollToPage(
+      curr,
+      next,
+      pageTransitionDuration,
+      direction,
+      currentPageIndex,
+      pageSections.value,
+      innerWrappers.value,
+      outerWrappers.value,
+      isAnimating,
+      navigationIndicatorRef.value
+    );
   }
 );
+
+watch(useState("sidebarIsOpen"), (sidebarIsNowOpen) => {
+  if (sidebarIsNowOpen) observer.value?.disable();
+  else observer.value?.enable();
+});
 </script>
 
 <style scoped></style>

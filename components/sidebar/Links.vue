@@ -3,16 +3,12 @@
     <li class="sidebar-nav-link invisible" v-for="page in pages" :key="page.id">
       <div class="flex items-center gap-10 justify-center lg:justify-start">
         <div class="lg:block hidden">
-          <Icon
-            name="octicon:dot-fill-16"
-            size="20"
-            :color="theme.colors['opposite-main']"
-          />
+          <Icon name="octicon:dot-fill-16" size="20" :color="textColor" />
         </div>
         <button
           @click.prevent="changePage(page.id)"
           href="#"
-          class="nav-link text-opposite-main lg:text-6xl text-5xl"
+          class="nav-link lg:text-6xl text-5xl"
         >
           {{ page.title }}
         </button>
@@ -26,7 +22,12 @@ import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfig from "~/tailwind.config.js";
 const { theme } = resolveConfig(tailwindConfig) as { theme: any };
 const { $gsap: gsap } = useNuxtApp();
-
+const props = defineProps({
+  textColor: {
+    type: String,
+    required: true,
+  },
+});
 const emits = defineEmits(["close"]);
 
 const pages = usePages();
@@ -101,8 +102,8 @@ defineExpose({
   color: transparent;
   background: linear-gradient(
     to right,
-    theme("colors.opposite-main") 0%,
-    theme("colors.opposite-main") 50%,
+    v-bind(textColor) 0%,
+    v-bind(textColor) 50%,
     theme("colors.complementary") 50%,
     theme("colors.complementary") 100%
   );

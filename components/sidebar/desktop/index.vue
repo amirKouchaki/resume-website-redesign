@@ -6,8 +6,8 @@
           <Icon
             name="uil:bars"
             size="30"
-            color="white"
-            class="open-sidebar-icon absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 invisible z-0"
+            :color="currPage.secondaryColor"
+            class="open-sidebar-icon absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 invisible z-0 cursor-pointer"
           />
         </div>
         <svg
@@ -24,8 +24,8 @@
           C 70 473 70 372.5 70 246
           C 70 119.5 70 0 70 0
           Z"
-            fill="black"
-            stroke="black"
+            :fill="currPage.mainColor"
+            :stroke="currPage.mainColor"
           />
         </svg>
       </div>
@@ -44,8 +44,8 @@
           C 70 473 70 372.5 70 246
           C 70 119.5 70 0 70 0
           Z"
-            fill="white"
-            stroke="white"
+            :fill="currPage.secondaryColor"
+            :stroke="currPage.secondaryColor"
           />
         </svg>
 
@@ -53,8 +53,8 @@
           <Icon
             name="mingcute:close-line"
             size="30"
-            color="black"
-            class="close-sidebar-icon absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 invisible"
+            :color="currPage.mainColor"
+            class="close-sidebar-icon absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 invisible cursor-pointer"
           />
         </div>
       </div>
@@ -66,7 +66,11 @@
     :class="{ 'pointer-events-none z-10': !sidebarIsOpen }"
   >
     <div class="absolute inset-0 grid place-items-center">
-      <SidebarLinks @close="closeSidebar" ref="sidebarLinksRef" />
+      <SidebarLinks
+        :text-color="currPage.secondaryColor"
+        @close="closeSidebar"
+        ref="sidebarLinksRef"
+      />
     </div>
     <svg
       width="100%"
@@ -79,8 +83,8 @@
     >
       <path
         d="M1920 -8.2016e-05V1078.22C1920 1078.22 1920 1079.5 1920 1078.5C1920 1077.5 1920 1077.5 1920 1074.5C1920 1071.5 1920 888 1920 773.5C1920 682.241 1920 597 1920 536C1920 475 1920 397.318 1920 334C1920 268 1920 34.4999 1920 -8.2016e-05C1920 -49.5 1920 -8.2016e-05 1920 -8.2016e-05Z"
-        fill="black"
-        stroke="black"
+        :fill="currPage.mainColor"
+        :stroke="currPage.mainColor"
       />
     </svg>
   </div>
@@ -90,8 +94,17 @@
 import type { SidebarLinks } from "#build/components";
 
 const { $gsap: gsap } = useNuxtApp();
+const pages = usePages();
 
 const { x, y } = useMouse();
+const route = useRoute();
+
+const currPage = computed(() => {
+  const currPageVar = pages.value.find((page) => {
+    return page.id === route.query.page;
+  });
+  return currPageVar ?? pages.value[0];
+});
 
 const sidebarLinksRef: Ref<InstanceType<typeof SidebarLinks> | undefined> =
   ref();
@@ -133,7 +146,7 @@ const svgMorphPageFillTL = gsap?.timeline({
 });
 
 const goToY: Ref<gsap.QuickToFunc | Function> = ref(() => {});
-const sidebarIsOpen = ref(false);
+const sidebarIsOpen = useState("sidebarIsOpen", () => false);
 
 const openSidebar = async () => {
   if (!sidebarIsOpen.value) {
@@ -246,5 +259,9 @@ watch([x, y], () => {
 <style scoped>
 .desktop-sidebar {
   transform: translateY(-50%);
+}
+
+.open-sidebar-wave path {
+  transition: fill 1s ease-in-out, stroke 1s ease-in-out;
 }
 </style>

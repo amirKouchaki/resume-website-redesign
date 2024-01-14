@@ -1,31 +1,26 @@
 <template>
   <div
-    class="mobile-sidebar-bg fixed top-0 bottom-0 right-0 bg-secondary w-0 lg:hidden block"
+    class="mobile-sidebar-bg fixed top-0 bottom-0 right-0 w-0 lg:hidden block"
   >
     <div class="absolute inset-0 grid place-items-center whitespace-nowrap">
-      <SidebarLinks @close="switchSidebarStatus" ref="sidebarLinksRef" />
+      <SidebarLinks
+        :text-color="currPage.secondaryColor"
+        @close="switchSidebarStatus"
+        ref="sidebarLinksRef"
+      />
     </div>
   </div>
   <div
     class="mobile-sidebar lg:hidden relative w-[36px] h-[28px]"
     @click="switchSidebarStatus"
   >
-    <!-- <SidebarMobileButtonsOpen
-      :isAnimating="isAnimatingMobileSidebar"
-      ref="openSidebarButtonRef"
-      @click="openMobileSidebar"
-      class="mobile-sidebar-open-icon absolute inset-0"
-    />
-    <SidebarMobileButtonsClose
-      ref="closeSidebarButtonRef"
-      @click="closeMobileSidebar"
-      class="mobile-sidebar-close-icon invisible absolute inset-0"
-    /> -->
     <Icon
       name="heroicons:bars-2-16-solid"
-      :color="theme.colors['opposite-main']"
+      :color="
+        sidebarIsOpen ? currPage.secondaryColor : theme.colors['opposite-main']
+      "
       size="30"
-      class="cursor-pointer"
+      class="cursor-pointer transition-colors"
     />
   </div>
 </template>
@@ -35,9 +30,21 @@ import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfig from "~/tailwind.config.js";
 const { theme } = resolveConfig(tailwindConfig) as { theme: any };
 import type { SidebarLinks } from "#build/components";
-import type SidebarMobileButtonsClose from "../mobile/buttons/Close.vue";
 
 const { $gsap: gsap } = useNuxtApp();
+const pages = usePages();
+const route = useRoute();
+
+const currPage = computed(() => {
+  const currPageVar = pages.value.find((page) => {
+    return page.id === route.query.page;
+  });
+  return currPageVar ?? pages.value[0];
+});
+
+const currPageMainColor = computed(() => {
+  return currPage.value.mainColor;
+});
 
 const sidebarLinksRef: Ref<InstanceType<typeof SidebarLinks> | undefined> =
   ref();
@@ -57,7 +64,7 @@ const openMobileSidebarTL = gsap?.timeline({
   },
 });
 
-const sidebarIsOpen = ref(false);
+const sidebarIsOpen = useState("sidebarIsOpen", () => false);
 
 const switchSidebarStatus = () => {
   if (!sidebarIsOpen.value) {
@@ -69,25 +76,9 @@ const switchSidebarStatus = () => {
 
 const openMobileSidebar = () => {
   if (sidebarLinksRef.value) {
-    // openSidebarButtonRef.value?.animationTL.progress(1);
     openMobileSidebarTL
       .clear()
-      // .to(
-      //   ".mobile-sidebar-open-icon",
-      //   {
-      //     duration: 0.07,
-      //     autoAlpha: 0,
-      //   },
-      //   0
-      // )
-      // .to(
-      //   ".mobile-sidebar-close-icon",
-      //   {
-      //     autoAlpha: 1,
-      //     duration: 0.07,
-      //   },
-      //   0
-      // )
+
       .to(".mobile-sidebar-bg", {
         duration: 0.5,
         width: "100%",
@@ -102,8 +93,8 @@ const closeMobileSidebar = () => {
 };
 </script>
 
-<style scoped>
-.desktop-sidebar {
-  transform: translateY(-50%);
+<style>
+.mobile-sidebar-bg {
+  background-color: v-bind(currPageMainColor);
 }
 </style>
