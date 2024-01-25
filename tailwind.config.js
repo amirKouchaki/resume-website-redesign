@@ -7,6 +7,7 @@ export default {
         main: "#222222",
         secondary: "#000000",
         complementary: "#006466",
+        "fade-complementary": "#012122",
         "opposite-main": "#ffffff",
       },
     },
