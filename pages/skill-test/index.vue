@@ -12,8 +12,13 @@
       :page-id="pages[1].id"
       inner-class="bg-secondary grid place-items-center"
     >
-      <div class="skills flex flex-row gap-8 items-center">
-        <Skill v-for="skill in skills" :key="skill.id" :skill="skill" />
+      <div class="skills w-full h-full flex">
+        <Skill
+          v-for="skill in skills"
+          :key="skill.id"
+          :skill="skill"
+          :widthDivider="skills.length"
+        />
       </div>
     </SectionPage>
     <SectionPage
@@ -54,6 +59,7 @@ const skills = [
     component: IconLaravel,
     heightClass: "h-[25em]",
     hoverColor: "#401712",
+    bgColor: "#57586b",
   },
   {
     id: 2,
@@ -61,6 +67,7 @@ const skills = [
     component: IconCss,
     heightClass: "h-[20em]",
     hoverColor: "#112960",
+    bgColor: "#ede2d5",
   },
   {
     id: 3,
@@ -68,6 +75,7 @@ const skills = [
     component: IconVue,
     heightClass: "h-[23.5em]",
     hoverColor: "#1b4a35",
+    bgColor: "#871a19",
   },
   {
     id: 4,
@@ -75,6 +83,7 @@ const skills = [
     component: IconHtml,
     heightClass: "h-[28.5em]",
     hoverColor: "#b04b1f",
+    bgColor: "#b04b1f",
   },
   {
     id: 5,
@@ -82,6 +91,7 @@ const skills = [
     component: IconNuxt,
     heightClass: "h-[16em]",
     hoverColor: "#18312c",
+    bgColor: "#ce8c6a",
   },
 ];
 </script>
